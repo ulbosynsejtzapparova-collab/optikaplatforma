@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ФизикаЛАБ – Оптика</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0a0a1a;
+  --panel: #111128;
+  --card: #161635;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0f0ff;
+  --muted: #7878aa;
+  --chalk: #f4f0e0;
+  --board: #1a3a1a;
+  --board-dark: #102210;
+  --accent: #f59e0b;
+  --blue: #60a5fa;
+  --green: #34d399;
+  --red: #f87171;
+  --purple: #a78bfa;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body {
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND PARTICLES ── */
+#bgCanvas {
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+}
+
+/* ── LANG BAR ── */
+.top-bar {
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;
+  background:rgba(10,10,26,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.logo {font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent);}
+.lang-pills{display:flex;gap:6px;}
+.lp {
+  padding:5px 14px;border-radius:20px;border:1.5px solid var(--purple);
+  background:transparent;color:var(--text);cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .25s;
+}
+.lp.on{background:var(--purple);color:#fff;}
+.back-btn {
+  background:rgba(255,255,255,0.07);border:1px solid var(--border);
+  border-radius:10px;padding:6px 14px;color:var(--text);cursor:pointer;
+  font-size:13px;font-weight:700;transition:all .25s;display:none;
+}
+.back-btn:hover{background:rgba(255,255,255,0.13);}
+.back-btn.show{display:block;}
+
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:10;min-height:100vh;padding-top:60px;}
+.screen.on{display:flex;flex-direction:column;align-items:center;}
+
+/* ══════════════════════════════════
+   HOME
+══════════════════════════════════ */
+#sHome {
+  justify-content:center;
+  padding:70px 20px 40px;
+}
+
+.home-glow {
+  position:absolute;top:20%;left:50%;transform:translateX(-50%);
+  width:600px;height:300px;
+  background:radial-gradient(ellipse,rgba(139,92,246,0.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.home-title {
+  font-family:'Baloo 2',sans-serif;font-weight:800;
+  font-size:clamp(2rem,6vw,3.8rem);text-align:center;
+  line-height:1.1;margin-bottom:12px;
+  animation:fadeUp .7s ease both;
+}
+.home-title .g1{
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.home-title .g2{
+  background:linear-gradient(135deg,#60a5fa,#a78bfa);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.home-sub {
+  color:var(--muted);font-size:1rem;text-align:center;margin-bottom:40px;
+  animation:fadeUp .7s .1s ease both;
+}
+
+/* Teacher SVG home */
+.home-teacher {
+  margin:0 auto 36px;
+  animation:float 3.5s ease-in-out infinite, fadeUp .7s .2s ease both;
+}
+
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* Main nav cards */
+.nav-cards {
+  display:flex;flex-wrap:wrap;gap:18px;justify-content:center;
+  max-width:860px;width:100%;
+  animation:fadeUp .7s .3s ease both;
+}
+
+.nc {
+  flex:1;min-width:220px;max-width:260px;
+  background:var(--card);border:2px solid transparent;
+  border-radius:22px;padding:28px 22px;cursor:pointer;
+  transition:all .3s;position:relative;overflow:hidden;
+  text-align:center;
+}
+.nc::before{
+  content:'';position:absolute;inset:0;
+  background:var(--nc-grad,linear-gradient(135deg,#f59e0b22,#f9731622));
+  opacity:0;transition:opacity .3s;
+}
+.nc:hover{transform:translateY(-7px);border-color:var(--nc-c,#f59e0b);box-shadow:0 20px 40px rgba(0,0,0,.35);}
+.nc:hover::before{opacity:1;}
+.nc-icon{font-size:2.8rem;margin-bottom:10px;display:block;}
+.nc-title{font-family:'Baloo 2',sans-serif;font-size:1.2rem;font-weight:800;display:block;}
+.nc-desc{font-size:.82rem;color:var(--muted);margin-top:5px;display:block;}
+
+.nc-a{--nc-c:#f59e0b;--nc-grad:linear-gradient(135deg,#f59e0b22,#f9731622);}
+.nc-b{--nc-c:#34d399;--nc-grad:linear-gradient(135deg,#34d39922,#06b6d422);}
+.nc-c{--nc-c:#f87171;--nc-grad:linear-gradient(135deg,#f8717122,#a855f722);}
+
+/* ══════════════════════════════════
+   EMOTION SELECTION
+══════════════════════════════════ */
+#sEmotion {
+  justify-content:center;padding:80px 20px 40px;
+}
+
+.emo-header{text-align:center;margin-bottom:36px;}
+.emo-header h2{font-family:'Baloo 2',sans-serif;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;margin-bottom:8px;}
+.emo-header p{color:var(--muted);font-size:.95rem;}
+
+/* Teacher asking */
+.emo-teacher-wrap{
+  display:flex;align-items:flex-end;gap:16px;justify-content:center;
+  margin-bottom:32px;animation:fadeUp .5s ease;
+}
+.emo-bubble {
+  background:#fff;color:#111;border-radius:16px 16px 16px 4px;
+  padding:12px 18px;font-size:.95rem;font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:280px;line-height:1.4;
+}
+
+.emo-cards{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;max-width:820px;}
+
+.ec {
+  flex:1;min-width:220px;max-width:260px;
+  border-radius:20px;padding:26px 20px;cursor:pointer;
+  transition:all .3s;border:2px solid transparent;text-align:center;
+  position:relative;overflow:hidden;
+}
+.ec:hover{transform:translateY(-8px) scale(1.02);}
+
+.ec-fear{background:linear-gradient(135deg,#1c3566,#111128);border-color:#3b82f6;}
+.ec-fear:hover{box-shadow:0 16px 40px rgba(59,130,246,.35);}
+.ec-bored{background:linear-gradient(135deg,#163a25,#111128);border-color:#34d399;}
+.ec-bored:hover{box-shadow:0 16px 40px rgba(52,211,153,.35);}
+.ec-confused{background:linear-gradient(135deg,#3d1a30,#111128);border-color:#f87171;}
+.ec-confused:hover{box-shadow:0 16px 40px rgba(248,113,113,.35);}
+
+.ec-emoji{font-size:3rem;margin-bottom:10px;display:block;}
+.ec-title{font-size:1.05rem;font-weight:800;margin-bottom:6px;}
+.ec-quote{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.4;font-style:italic;}
+
+/* ══════════════════════════════════
+   VIDEO / LESSON SCREEN
+══════════════════════════════════ */
+#sVideo {
+  padding:64px 16px 40px;
+  align-items:stretch;
+}
+
+.lesson-wrap{
+  max-width:960px;width:100%;margin:0 auto;
+  display:flex;flex-direction:column;gap:16px;
+}
+
+/* Badge row */
+.lesson-meta{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.badge {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.lesson-title{
+  font-family:'Baloo 2',sans-serif;font-size:clamp(1.3rem,3vw,1.9rem);
+  font-weight:800;
+}
+
+/* ── CLASSROOM VIDEO ── */
+.classroom {
+  background:#000;border-radius:20px;overflow:hidden;
+  position:relative;aspect-ratio:16/9;
+  border:2px solid rgba(255,255,255,.08);
+  box-shadow:0 30px 60px rgba(0,0,0,.6);
+}
+
+/* BG wall */
+.cls-wall {
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#1a1060 0%,#231a7a 40%,#2d2288 100%);
+}
+/* Floor */
+.cls-floor{
+  position:absolute;bottom:0;left:0;right:0;height:22%;
+  background:linear-gradient(180deg,#2a1f0a,#1a1200);
+}
+/* Window */
+.cls-window {
+  position:absolute;top:8%;right:6%;width:12%;aspect-ratio:1;
+  background:linear-gradient(135deg,#bfdbfe,#93c5fd);
+  border:3px solid #92400e;border-radius:4px;
+  box-shadow:0 0 20px rgba(147,197,253,.4);
+}
+
+/* ── BLACKBOARD ── */
+.blackboard {
+  position:absolute;top:5%;left:50%;transform:translateX(-50%);
+  width:62%;height:52%;
+  background:var(--board);
+  border:8px solid #5d4037;
+  border-radius:4px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.5);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.blackboard::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,.025) 28px,rgba(255,255,255,.025) 29px);
+}
+
+/* Canvas for chalk writing */
+#chalkCanvas {
+  position:absolute;inset:0;width:100%;height:100%;
+}
+
+/* ── TEACHER CHARACTER (classroom) ── */
+.cls-teacher {
+  position:absolute;
+  bottom:21%;
+  left:8%;
+  display:flex;flex-direction:column;align-items:center;
+  transform-origin:bottom center;
+  animation:teacherBob 2s ease-in-out infinite;
+}
+@keyframes teacherBob{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.03)}}
+
+/* Mouth animation */
+.t-mouth{transition:d .1s;}
+
+/* Teacher speech bubble */
+.cls-bubble {
+  position:absolute;
+  bottom:calc(21% + 95px);
+  left:calc(8% + 10px);
+  background:#fff;color:#111128;
+  border-radius:12px 12px 12px 4px;
+  padding:8px 12px;
+  font-size:clamp(7px,1.3vw,12px);font-weight:700;
+  line-height:1.4;max-width:30%;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  opacity:0;
+  transition:opacity .3s;
+  z-index:20;
+}
+.cls-bubble.show{opacity:1;}
+
+/* Light rays */
+.lray {
+  position:absolute;
+  height:2px;border-radius:1px;
+  opacity:0;
+  transition:all .5s;
+}
+.lray.show{opacity:.7;}
+
+/* ── SUBTITLE BAR ── */
+.sub-bar {
+  background:rgba(0,0,0,.75);
+  border-radius:14px;padding:14px 20px;
+  text-align:center;border:1px solid var(--border);
+  backdrop-filter:blur(8px);
+  min-height:72px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+}
+.sub-kk{color:#fbbf24;font-size:clamp(.85rem,2vw,1rem);font-weight:700;line-height:1.5;}
+.sub-ru{color:#94a3b8;font-size:clamp(.75rem,1.7vw,.9rem);line-height:1.4;}
+
+/* ── CONTROLS ── */
+.controls {
+  background:var(--card);border-radius:14px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+  border:1px solid var(--border);
+}
+.cbtn {
+  background:none;border:none;color:var(--text);
+  cursor:pointer;font-size:1.4rem;padding:4px;
+  transition:transform .2s;flex-shrink:0;
+}
+.cbtn:hover{transform:scale(1.2);}
+.pbar {
+  flex:1;height:7px;background:rgba(255,255,255,.12);
+  border-radius:4px;cursor:pointer;overflow:hidden;
+}
+.pfill {
+  height:100%;border-radius:4px;width:0%;
+  background:linear-gradient(90deg,var(--purple),var(--accent));
+  transition:width .8s linear;
+}
+.timer{font-size:.8rem;color:var(--muted);white-space:nowrap;}
+
+/* ── STEPS PANEL ── */
+.steps-panel {
+  background:var(--card);border-radius:16px;
+  padding:20px;border:1px solid var(--border);
+}
+.steps-panel h4{
+  font-size:.8rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--muted);margin-bottom:14px;
+}
+.step-item {
+  display:flex;gap:12px;padding:10px;
+  border-radius:10px;margin-bottom:8px;
+  border-left:3px solid var(--step-c,var(--purple));
+  transition:all .3s;opacity:.45;
+  background:rgba(255,255,255,.02);
+}
+.step-item.active{opacity:1;background:rgba(255,255,255,.05);}
+.snum {
+  min-width:26px;height:26px;border-radius:50%;
+  background:var(--step-c,var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:900;flex-shrink:0;
+}
+.stext .st{font-weight:800;font-size:.88rem;margin-bottom:2px;}
+.stext .sd{font-size:.8rem;color:var(--muted);line-height:1.45;}
+
+/* ══════════════════════════════════
+   UTILITIES
+══════════════════════════════════ */
+@media(max-width:640px){
+  .nav-cards,.emo-cards{flex-direction:column;align-items:center;}
+  .nc,.ec{min-width:280px;max-width:100%;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">⚡ ФизикаЛАБ</div>
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Артқа</button>
+  <div class="lang-pills">
+    <button class="lp on" onclick="setLang('kk')">ҚАЗ</button>
+    <button class="lp" onclick="setLang('ru')">РУС</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ HOME ═══════════════════════════════════ -->
+<div class="screen on" id="sHome">
+  <div class="home-glow"></div>
+
+  <h1 class="home-title">
+    <span class="g1" id="ht1">Жарық пен</span><br>
+    <span class="g2" id="ht2">Оптика Әлемі</span>
+  </h1>
+  <p class="home-sub" id="hsub">Сенің эмоцияңа бейімделген физика платформасы</p>
+
+  <!-- Home teacher -->
+  <div class="home-teacher">
+    <svg width="110" height="130" viewBox="0 0 110 130">
+      <!-- body -->
+      <rect x="28" y="72" width="54" height="58" rx="8" fill="#1e3a5f"/>
+      <rect x="47" y="72" width="16" height="32" fill="white"/>
+      <polygon points="55,75 51,88 55,90 59,88" fill="#f87171"/>
+      <!-- head -->
+      <ellipse cx="55" cy="55" rx="24" ry="24" fill="#f5cba7"/>
+      <!-- hair -->
+      <path d="M31,48 Q31,26 55,26 Q79,26 79,48" fill="#3d2b1f"/>
+      <!-- ears -->
+      <ellipse cx="31" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+      <ellipse cx="79" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+      <!-- glasses -->
+      <rect x="37" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+      <rect x="58" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+      <line x1="52" y1="55" x2="58" y2="55" stroke="#7c5c3a" stroke-width="2"/>
+      <!-- eyes -->
+      <circle cx="44" cy="55" r="3" fill="#1a1a2e"/>
+      <circle cx="65" cy="55" r="3" fill="#1a1a2e"/>
+      <circle cx="45" cy="54" r="1" fill="white"/>
+      <circle cx="66" cy="54" r="1" fill="white"/>
+      <!-- mouth -->
+      <path id="homeMouth" d="M48,66 Q55,72 62,66" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- pointer -->
+      <rect x="76" y="60" width="3" height="38" rx="1.5" fill="#7c5c3a"/>
+      <circle cx="77.5" cy="59" r="3.5" fill="#f59e0b"/>
+      <!-- arms -->
+      <rect x="10" y="73" width="19" height="9" rx="4" fill="#1e3a5f"/>
+      <rect x="81" y="73" width="19" height="9" rx="4" fill="#1e3a5f"/>
+    </svg>
+  </div>
+
+  <div class="nav-cards">
+    <div class="nc nc-a" onclick="pickSection('lecture')">
+      <span class="nc-icon">🎓</span>
+      <span class="nc-title" id="ncA-t">ЛЕКЦИЯ</span>
+      <span class="nc-desc" id="ncA-d">Оптика теориясын үйрен</span>
+    </div>
+    <div class="nc nc-b" onclick="pickSection('problem')">
+      <span class="nc-icon">✏️</span>
+      <span class="nc-title" id="ncB-t">ЕСЕПТЕР</span>
+      <span class="nc-desc" id="ncB-d">Есептерді бірге шығар</span>
+    </div>
+    <div class="nc nc-c" onclick="pickSection('demo')">
+      <span class="nc-icon">🔬</span>
+      <span class="nc-title" id="ncC-t">ДЕМОНСТРАЦИЯ</span>
+      <span class="nc-desc" id="ncC-d">Зертхана тәжірибесі</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ EMOTION ═══════════════════════════════════ -->
+<div class="screen" id="sEmotion">
+  <div class="emo-header">
+    <h2 id="emoH">Қазір өзіңді қалай сезінесің?</h2>
+    <p id="emoP">Эмоцияңды таңда — сабақ саған бейімделеді</p>
+  </div>
+
+  <div class="emo-teacher-wrap">
+    <svg width="80" height="95" viewBox="0 0 110 130">
+      <rect x="28" y="72" width="54" height="58" rx="8" fill="#1e3a5f"/>
+      <rect x="47" y="72" width="16" height="32" fill="white"/>
+      <polygon points="55,75 51,88 55,90 59,88" fill="#f87171"/>
+      <ellipse cx="55" cy="55" rx="24" ry="24" fill="#f5cba7"/>
+      <path d="M31,48 Q31,26 55,26 Q79,26 79,48" fill="#3d2b1f"/>
+      <ellipse cx="31" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+      <ellipse cx="79" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+      <rect x="37" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+      <rect x="58" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+      <line x1="52" y1="55" x2="58" y2="55" stroke="#7c5c3a" stroke-width="2"/>
+      <circle cx="44" cy="55" r="3" fill="#1a1a2e"/>
+      <circle cx="65" cy="55" r="3" fill="#1a1a2e"/>
+      <path d="M48,66 Q55,72 62,66" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <rect x="10" y="73" width="19" height="9" rx="4" fill="#1e3a5f"/>
+      <rect x="81" y="73" width="19" height="9" rx="4" fill="#1e3a5f"/>
+    </svg>
+    <div class="emo-bubble" id="emoBubble">Қазір өзіңді қалай сезінесің? 😊</div>
+  </div>
+
+  <div class="emo-cards">
+    <div class="ec ec-fear" onclick="pickEmotion('fear')">
+      <span class="ec-emoji">😨</span>
+      <div class="ec-title" id="ecF-t">Қорқыныш / Сенімсіздік</div>
+      <div class="ec-quote" id="ecF-q">"Физиканы түсінбеймін деп қорқамын"</div>
+    </div>
+    <div class="ec ec-bored" onclick="pickEmotion('bored')">
+      <span class="ec-emoji">😴</span>
+      <div class="ec-title" id="ecB-t">Жалығу / Қызығушылық жоқ</div>
+      <div class="ec-quote" id="ecB-q">"Бұл сабақ маған қажет емес"</div>
+    </div>
+    <div class="ec ec-confused" onclick="pickEmotion('confused')">
+      <span class="ec-emoji">😵</span>
+      <div class="ec-title" id="ecC-t">Шатасу / Түсінбеу</div>
+      <div class="ec-quote" id="ecC-q">"Тақырыпты мүлдем түсінбедім"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ VIDEO ═══════════════════════════════════ -->
+<div class="screen" id="sVideo">
+<div class="lesson-wrap">
+
+  <div class="lesson-meta">
+    <span class="badge" id="lBadge"></span>
+    <span class="badge" id="emoBadge"></span>
+  </div>
+  <div class="lesson-title" id="lTitle"></div>
+
+  <!-- CLASSROOM -->
+  <div class="classroom" id="clsRoom">
+    <div class="cls-wall"></div>
+    <div class="cls-floor"></div>
+    <div class="cls-window"></div>
+
+    <!-- BLACKBOARD -->
+    <div class="blackboard">
+      <canvas id="chalkCanvas"></canvas>
+    </div>
+
+    <!-- light rays (shown during demo) -->
+    <div class="lray" id="ray1" style="top:40%;left:15%;width:20%;background:linear-gradient(90deg,transparent,#fbbf24,transparent);transform:rotate(-15deg)"></div>
+    <div class="lray" id="ray2" style="top:45%;left:35%;width:18%;background:linear-gradient(90deg,transparent,#60a5fa,transparent);transform:rotate(12deg)"></div>
+    <div class="lray" id="ray3" style="top:35%;left:55%;width:16%;background:linear-gradient(90deg,transparent,#34d399,transparent);transform:rotate(-28deg)"></div>
+
+    <!-- TEACHER -->
+    <div class="cls-teacher" id="clsTeacher">
+      <svg id="tSvg" viewBox="0 0 110 130" style="width:clamp(55px,8vw,90px);height:auto">
+        <rect x="28" y="72" width="54" height="58" rx="8" fill="#1e3a5f"/>
+        <rect x="47" y="72" width="16" height="32" fill="white"/>
+        <polygon points="55,75 51,88 55,90 59,88" fill="#f87171"/>
+        <ellipse cx="55" cy="55" rx="24" ry="24" fill="#f5cba7"/>
+        <path d="M31,48 Q31,26 55,26 Q79,26 79,48" fill="#3d2b1f"/>
+        <ellipse cx="31" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+        <ellipse cx="79" cy="55" rx="5" ry="7" fill="#f5cba7"/>
+        <rect x="37" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+        <rect x="58" y="50" width="15" height="11" rx="5" fill="none" stroke="#7c5c3a" stroke-width="2"/>
+        <line x1="52" y1="55" x2="58" y2="55" stroke="#7c5c3a" stroke-width="2"/>
+        <circle cx="44" cy="55" r="3" fill="#1a1a2e"/>
+        <circle cx="65" cy="55" r="3" fill="#1a1a2e"/>
+        <path id="tMouth" d="M48,66 Q55,72 62,66" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect x="76" y="58" width="3" height="42" rx="1.5" fill="#7c5c3a" id="tPointer"/>
+        <circle cx="77.5" cy="57" r="3.5" fill="#f59e0b"/>
+        <rect x="10" y="73" width="19" height="9" rx="4" fill="#1e3a5f" id="tArmL"/>
+        <rect x="81" y="73" width="19" height="9" rx="4" fill="#1e3a5f" id="tArmR"/>
+      </svg>
+    </div>
+
+    <!-- Speech bubble in classroom -->
+    <div class="cls-bubble" id="clsBubble"></div>
+  </div>
+
+  <!-- SUBTITLE -->
+  <div class="sub-bar">
+    <div class="sub-kk" id="subKK">...</div>
+    <div class="sub-ru" id="subRU">...</div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="cbtn" id="playBtn" onclick="togglePlay()">▶️</button>
+    <button class="cbtn" onclick="restart()">⏮️</button>
+    <div class="pbar" onclick="seekClick(event)">
+      <div class="pfill" id="pfill"></div>
+    </div>
+    <span class="timer" id="timerDisp">0:00 / 0:00</span>
+    <button class="cbtn" id="voiceBtn" onclick="toggleVoice()">🔊</button>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-panel">
+    <h4 id="stepsH">📋 Сабақ жоспары</h4>
+    <div id="stepsBody"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═════════════════════ SCRIPTS ═════════════════════ -->
+<script>
+// ══════════════════════════════════════════════════════════════════
+// BG PARTICLES
+// ══════════════════════════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('bgCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;init();}
+  function init(){
+    pts=[];
+    for(let i=0;i<80;i++) pts.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+      r:Math.random()*1.8+.5,
+      o:Math.random()*.5+.1
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(167,139,250,${p.o})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize(); draw();
+})();
+
+// ══════════════════════════════════════════════════════════════════
+// CONTENT DATA — 9 lessons
+// ══════════════════════════════════════════════════════════════════
+const DATA = {
+
+lecture: {
+  fear: {
+    kk:{ badge:'🎓 Лекция', title:'Жарықтың шағылуы — Бірге үйренеміз!' },
+    ru:{ badge:'🎓 Лекция', title:'Отражение света — Учимся вместе!' },
+    color:'#60a5fa', emoColor:'#3b82f6',
+    steps:[
+      { kk:{ t:'Кіріспе', d:'Сәлем! Мен сенімен бірге боламын. Физикадан қорықпа — бүгін тек бір заңды үйренеміз. Дайынсың ба?' },
+        ru:{ t:'Вступление', d:'Привет! Я буду с тобой. Не бойся физики — сегодня учим только один закон. Готов?' },
+        chalk:['ЖАРЫҚТЫҢ ШАҒЫЛУЫ','Reflection of Light'], speak_kk:'Сәлем! Мен сенімен бірге боламын. Физикадан қорықпа, бүгін тек бір заңды үйренеміз.', speak_ru:'Привет! Я буду с тобой. Не бойся физики, сегодня учим только один закон.' },
+      { kk:{ t:'Шағылу деген не?', d:'Жарық бір бетке тисе, ол кері оралады. Дәл айнаға қарағандай — жарық шағылып, сен өз бейнеңді көресің!' },
+        ru:{ t:'Что такое отражение?', d:'Когда свет падает на поверхность — он отражается обратно. Как зеркало — свет отражается и ты видишь своё отражение!' },
+        chalk:['Жарық → Бет → Шағылу','Свет → Поверхность → Отражение'], speak_kk:'Жарық бір бетке тисе, ол кері оралады. Дәл айнаға қарағандай!', speak_ru:'Когда свет падает на поверхность — он отражается обратно. Как в зеркале!' },
+      { kk:{ t:'Шағылу заңы', d:'Кіру бұрышы — шығу бұрышына тең! θ₁ = θ₂. Бұл табиғат заңы, барлық жерде жұмыс істейді.' },
+        ru:{ t:'Закон отражения', d:'Угол падения равен углу отражения! θ₁ = θ₂. Это закон природы, работает везде.' },
+        chalk:['θ₁ = θ₂','Кіру бұрышы = Шығу бұрышы'], speak_kk:'Кіру бұрышы шығу бұрышына тең! Бұл шағылу заңы. Θ бірінші тең Θ екінші.', speak_ru:'Угол падения равен углу отражения! Θ один равен Θ два. Это закон отражения.' },
+      { kk:{ t:'Мысал: Айна', d:'Айна алдына тұр. Жарық сенің бетіңнен шағылып, айнаға тиеді. Айнадан кері шағылып, сенің көзіңе жетеді — бейне дайын!' },
+        ru:{ t:'Пример: Зеркало', d:'Встань перед зеркалом. Свет отражается от тебя, падает на зеркало. Зеркало отражает обратно к твоим глазам — изображение готово!' },
+        chalk:['Мысал: Айна','θ₁ = θ₂ = 45°'], speak_kk:'Айна алдына тұр. Жарық шағылып, сенің бейнеңді жасайды. Кіру бұрышы, шығу бұрышына тең. Мысалы 45 тең 45!', speak_ru:'Встань перед зеркалом. Свет отражается и создаёт твоё изображение. Угол падения равен углу отражения, например 45 равно 45!' },
+      { kk:{ t:'Қорытынды', d:'Сен дұрыс бағытта ойлап тұрсың! Бүгін бір заң үйрендік: θ₁ = θ₂. Физика қиын емес, тек байқап қарасаң болды! Мақтаулысың!' },
+        ru:{ t:'Заключение', d:'Ты мыслишь правильно! Сегодня выучили один закон: θ₁ = θ₂. Физика несложная, просто наблюдай! Молодец!' },
+        chalk:['θ₁ = θ₂  ✓','Мақтаулысың! 🌟'], speak_kk:'Сен дұрыс бағытта ойлап тұрсың! Бүгін бір заң үйрендік. Физика қиын емес. Мақтаулысың!', speak_ru:'Ты мыслишь правильно! Сегодня выучили один закон. Физика несложная. Молодец!' }
+    ]
+  },
+  bored: {
+    kk:{ badge:'🎓 Лекция', title:'Жарықтың сынуы — Нинзя жарығы!' },
+    ru:{ badge:'🎓 Лекция', title:'Преломление света — Ниндзя света!' },
+    color:'#34d399', emoColor:'#10b981',
+    steps:[
+      { kk:{ t:'Таңғаларлық факт!', d:'Жарық — нинзя! Ол ортадан ортаға өткенде буылып, бұрылады! Бассейнде аяғың сынып кеткендей көрінген — осы себептен!' },
+        ru:{ t:'Удивительный факт!', d:'Свет — ниндзя! Переходя из среды в среду, он изгибается! Почему нога в бассейне выглядит сломанной — именно поэтому!' },
+        chalk:['ЖАРЫҚТЫҢ СЫНУЫ','Нинзя жарығы! ⚡'], speak_kk:'Жарық нинзя! Ол ортадан ортаға өткенде бұрылады! Бассейнде аяғың сынып кеткендей — осы себептен!', speak_ru:'Свет это ниндзя! Переходя из среды в среду он изгибается! Нога в бассейне выглядит сломанной именно поэтому!' },
+      { kk:{ t:'Неге бұрылады?', d:'Ауада жарық жылдамдығы — 300 000 км/с! Судан өткенде баяулайды. Баяулаған жарық бағытын өзгертеді — осыны СЫНУ дейміз!' },
+        ru:{ t:'Почему изгибается?', d:'В воздухе скорость света — 300 000 км/с! В воде замедляется. Замедлившийся свет меняет направление — это и называют ПРЕЛОМЛЕНИЕМ!' },
+        chalk:['v_ауа = 300 000 км/с','v_су = 225 000 км/с'], speak_kk:'Ауада жарық жылдамдығы 300 мың км/с. Судан өткенде баяулайды. Баяулаған жарық бағытын өзгертеді.', speak_ru:'В воздухе скорость света 300 тысяч километров в секунду. В воде замедляется. Замедлившийся свет меняет направление.' },
+      { kk:{ t:'Снеллиус заңы', d:'n₁·sinθ₁ = n₂·sinθ₂. n — ортаның сыну көрсеткіші. Ауа: n=1.0, Су: n=1.33, Шыны: n=1.5' },
+        ru:{ t:'Закон Снеллиуса', d:'n₁·sinθ₁ = n₂·sinθ₂. n — показатель преломления среды. Воздух: n=1.0, Вода: n=1.33, Стекло: n=1.5' },
+        chalk:['n₁·sinθ₁ = n₂·sinθ₂','n_су = 1.33'], speak_kk:'Снеллиус заңы: н бірінші синус тета бірінші тең н екінші синус тета екінші. Судың сыну көрсеткіші 1.33.', speak_ru:'Закон Снеллиуса: н один синус тета один равно н два синус тета два. Показатель преломления воды 1.33.' },
+      { kk:{ t:'Кемпірқосақ — сыну!', d:'Кемпірқосақты байқадың ба? Жаңбыр тамшысы — миллион призма! Ақ жарық тамшыдан өткенде түрлі-түсті болып шашырайды!' },
+        ru:{ t:'Радуга — это преломление!', d:'Замечал радугу? Дождевая капля — миллион призм! Белый свет, проходя через каплю, рассыпается в цвета!' },
+        chalk:['Кемпірқосақ = Сыну','Ақ жарық → 7 түс'], speak_kk:'Кемпірқосақты байқадың ба? Жаңбыр тамшысы призма! Ақ жарық тамшыдан өткенде 7 түске бөлінеді!', speak_ru:'Замечал радугу? Капля дождя это призма! Белый свет проходя через каплю делится на 7 цветов!' },
+      { kk:{ t:'Сыну барлық жерде!', d:'Очки, микроскоп, телескоп, камера, кино — бәрі сыну принципінде жұмыс істейді! Физиканы білсең, дүниенің сырын ашасың!' },
+        ru:{ t:'Преломление везде!', d:'Очки, микроскоп, телескоп, камера, кино — всё работает на принципе преломления! Знаешь физику — раскрываешь тайны мира!' },
+        chalk:['Сыну = Технология','Очки, Камера, Телескоп...'], speak_kk:'Очки, микроскоп, телескоп, камера — бәрі сыну принципінде. Физиканы білсең, дүниенің сырын ашасың!', speak_ru:'Очки, микроскоп, телескоп, камера — всё на принципе преломления. Знаешь физику — раскрываешь тайны мира!' }
+    ]
+  },
+  confused: {
+    kk:{ badge:'🎓 Лекция', title:'Линзалар — 1,2,3 қадам!' },
+    ru:{ badge:'🎓 Лекция', title:'Линзы — шаг 1, 2, 3!' },
+    color:'#f87171', emoColor:'#f43f5e',
+    steps:[
+      { kk:{ t:'1-ҚАДАМ: Линза дегеніміз не?', d:'Линза — ортасы немесе шеттері қалың, мөлдір зат. Тек 2 түрі бар. Оны есте сақта: Жинақтаушы (+) және Шашыратушы (-).' },
+        ru:{ t:'ШАГ 1: Что такое линза?', d:'Линза — прозрачное тело, утолщённое посередине или по краям. Только 2 вида. Запомни: Собирающая (+) и Рассеивающая (-).' },
+        chalk:['ЛИНЗА = 2 түр','(+) Жинақтаушы','(-) Шашыратушы'], speak_kk:'Бірінші қадам. Линза дегеніміз не? Линза мөлдір зат. Тек екі түрі бар. Жинақтаушы плюс және Шашыратушы минус.', speak_ru:'Шаг первый. Что такое линза? Линза это прозрачное тело. Только два вида. Собирающая плюс и Рассеивающая минус.' },
+      { kk:{ t:'2-ҚАДАМ: Фокус', d:'Жинақтаушы линзадан өткен сәулелер бір нүктеге жиналады. Ол нүкте — ФОКУС (F). Линзадан фокусқа дейінгі қашықтық — f.' },
+        ru:{ t:'ШАГ 2: Фокус', d:'Лучи, прошедшие через собирающую линзу, собираются в одной точке. Эта точка — ФОКУС (F). Расстояние до фокуса — f.' },
+        chalk:['Фокус = F','f = фокус қашықтығы'], speak_kk:'Екінші қадам. Жинақтаушы линзадан өткен сәулелер бір нүктеге жиналады. Ол нүкте фокус деп аталады. Фокус F деп белгіленеді.', speak_ru:'Шаг второй. Лучи прошедшие через собирающую линзу собираются в одной точке. Эта точка называется фокусом. Фокус обозначается буквой Ф.' },
+      { kk:{ t:'3-ҚАДАМ: Формула', d:'Жұқа линза формуласы: 1/f = 1/d₀ + 1/dᵢ. f = фокус, d₀ = зат-линза арақашықтығы, dᵢ = линза-кескін арақашықтығы.' },
+        ru:{ t:'ШАГ 3: Формула', d:'Формула тонкой линзы: 1/f = 1/d₀ + 1/dᵢ. f = фокус, d₀ = расстояние предмет-линза, dᵢ = расстояние линза-изображение.' },
+        chalk:['1/f = 1/d₀ + 1/dᵢ','f, d₀, dᵢ'], speak_kk:'Үшінші қадам. Жұқа линза формуласы. Бір бөлінген эф тең бір бөлінген д нол плюс бір бөлінген д и. Формуланы жат!', speak_ru:'Шаг третий. Формула тонкой линзы. Один делить на эф равно один делить на д ноль плюс один делить на д и. Запомни формулу!' },
+      { kk:{ t:'4-ҚАДАМ: Ұлғайту', d:'Кескін ұлғайтуы: M = dᵢ/d₀. M > 1 болса — кескін үлкен. M < 1 болса — кескін кіші. Лупа — жинақтаушы линза, M > 1!' },
+        ru:{ t:'ШАГ 4: Увеличение', d:'Увеличение изображения: M = dᵢ/d₀. Если M > 1 — изображение увеличено. Если M < 1 — уменьшено. Лупа — собирающая линза, M > 1!' },
+        chalk:['M = dᵢ/d₀','Лупа: M > 1 ✓'], speak_kk:'Төртінші қадам. Кескін ұлғайтуы. М тең ди и бөлінген ди нол. М бірден үлкен болса кескін үлкен. М бірден кіші болса кескін кіші. Лупа жинақтаушы линза!', speak_ru:'Шаг четвёртый. Увеличение изображения. М равно ди и делить на ди ноль. Если М больше одного изображение увеличено. Если меньше уменьшено. Лупа это собирающая линза!' },
+      { kk:{ t:'ҚОРЫТЫНДЫ: Линза барлық жерде', d:'Лупа, очки, фотоаппарат, телескоп, микроскоп — бәрі линза! 4 қадамды есте сақтасаң, линзаны толық түсінесің!' },
+        ru:{ t:'ИТОГ: Линзы везде', d:'Лупа, очки, фотоаппарат, телескоп, микроскоп — всё линзы! Запомни 4 шага — и линзы тебе понятны!' },
+        chalk:['Линза барлық жерде!','Лупа✓ Очки✓ Камера✓'], speak_kk:'Қорытынды. Лупа, очки, фотоаппарат, телескоп, микроскоп — бәрі линза! Төрт қадамды есте сақтасаң, линзаны толық түсінесің!', speak_ru:'Итог. Лупа, очки, фотоаппарат, телескоп, микроскоп — всё линзы! Запомни четыре шага и линзы тебе понятны!' }
+    ]
+  }
+},
+
+problem: {
+  fear: {
+    kk:{ badge:'✏️ Есеп', title:'Шағылу есебі — Бірге шығарамыз!' },
+    ru:{ badge:'✏️ Задача', title:'Задача на отражение — Вместе решим!' },
+    color:'#60a5fa', emoColor:'#3b82f6',
+    steps:[
+      { kk:{ t:'Есеп шарты', d:'Жарық сәулесі тегіс айнаға 40° бұрышпен түседі. Шағылу бұрышын тап. Қорықпа — бұл өте жай!' },
+        ru:{ t:'Условие задачи', d:'Луч света падает на плоское зеркало под углом 40°. Найди угол отражения. Не бойся — это очень просто!' },
+        chalk:['Есеп шарты:','θ₁ = 40°','θ₂ = ?'], speak_kk:'Есеп шарты. Жарық сәулесі тегіс айнаға қырық градус бұрышпен түседі. Шағылу бұрышын тап. Қорықпа, бұл өте жай!', speak_ru:'Условие задачи. Луч света падает на плоское зеркало под углом сорок градусов. Найди угол отражения. Не бойся, это очень просто!' },
+      { kk:{ t:'Формуланы табамыз', d:'Шағылу заңын еске аламыз: θ₁ = θ₂. Тек бір ереже! Бізге θ₂ керек. θ₁ = 40° берілген.' },
+        ru:{ t:'Находим формулу', d:'Вспоминаем закон отражения: θ₁ = θ₂. Только одно правило! Нам нужно θ₂. Дано θ₁ = 40°.' },
+        chalk:['Формула: θ₁ = θ₂','θ₁ = 40° ← берілген'], speak_kk:'Шағылу заңын еске аламыз. Тета бірінші тең тета екінші. Тек бір ереже! Бізге тета екінші керек. Тета бірінші 40 градус берілген.', speak_ru:'Вспоминаем закон отражения. Тета один равно тета два. Только одно правило! Нам нужно тета два. Тета один 40 градусов дано.' },
+      { kk:{ t:'Шешу', d:'θ₂ = θ₁ = 40°. Осы ғана! Арнайы формула жоқ. Кіру бұрышы = шығу бұрышы. Дайын!' },
+        ru:{ t:'Решение', d:'θ₂ = θ₁ = 40°. Вот и всё! Никакой сложной формулы. Угол падения = угол отражения. Готово!' },
+        chalk:['θ₂ = θ₁','θ₂ = 40°','Жауап: 40°  ✓'], speak_kk:'Шешу. Тета екінші тең тета бірінші. Тета екінші тең қырық градус. Осы ғана! Жауап қырық градус. Дайын!', speak_ru:'Решение. Тета два равно тета один. Тета два равно сорок градусов. Вот и всё! Ответ сорок градусов. Готово!' },
+      { kk:{ t:'Тексеру + Мадақтау', d:'θ₁ = 40°, θ₂ = 40°. Тең! Дұрыс! Сен осыны жасай аласың. Физика — бір ереже есте сақтасаң болады. Мақтаулысың! ⭐' },
+        ru:{ t:'Проверка + Похвала', d:'θ₁ = 40°, θ₂ = 40°. Равны! Верно! Ты можешь это. Физика — запомни одно правило и всё. Молодец! ⭐' },
+        chalk:['Тексеру: 40° = 40° ✓','МАҚТАУЛЫСЫҢ! ⭐'], speak_kk:'Тексеру. Тета бірінші 40 градус, тета екінші 40 градус. Тең! Дұрыс! Сен осыны жасай аласың. Мақтаулысың!', speak_ru:'Проверка. Тета один 40 градусов, тета два 40 градусов. Равны! Верно! Ты можешь это. Молодец!' }
+    ]
+  },
+  bored: {
+    kk:{ badge:'✏️ Есеп', title:'Бассейн детективі — Жарық сырын аш!' },
+    ru:{ badge:'✏️ Задача', title:'Детектив бассейна — Раскрой тайну света!' },
+    color:'#34d399', emoColor:'#10b981',
+    steps:[
+      { kk:{ t:'Детективтік есеп!', d:'Елестет: сен детективсің! Су астындағы заттың нақты орнын анықтауың керек. Жарық суда бұрылады — сыну бұрышын тап!' },
+        ru:{ t:'Детективная задача!', d:'Представь: ты детектив! Нужно определить точное положение предмета под водой. Свет в воде изгибается — найди угол преломления!' },
+        chalk:['ДЕТЕКТИВ ЕСЕБІ 🕵️','n₁=1.0, n₂=1.33','θ₁=45°, θ₂=?'], speak_kk:'Детектив есебі! Елестет, сен детективсің! Су астындағы заттың нақты орнын анықтауың керек. Жарық суда бұрылады. Сыну бұрышын тап!', speak_ru:'Детективная задача! Представь, ты детектив! Нужно определить точное положение предмета под водой. Свет в воде изгибается. Найди угол преломления!' },
+      { kk:{ t:'Берілгені', d:'Ауа: n₁=1.0. Су: n₂=1.33. Кіру бұрышы: θ₁=45°. Снеллиус заңы: n₁·sinθ₁ = n₂·sinθ₂' },
+        ru:{ t:'Дано', d:'Воздух: n₁=1.0. Вода: n₂=1.33. Угол падения: θ₁=45°. Закон Снеллиуса: n₁·sinθ₁ = n₂·sinθ₂' },
+        chalk:['n₁·sinθ₁ = n₂·sinθ₂','1.0·sin45° = 1.33·sinθ₂'], speak_kk:'Берілгені. Ауа н бірінші 1.0. Су н екінші 1.33. Кіру бұрышы тета бірінші 45 градус. Снеллиус заңын қолданамыз.', speak_ru:'Дано. Воздух н один 1.0. Вода н два 1.33. Угол падения тета один 45 градусов. Применяем закон Снеллиуса.' },
+      { kk:{ t:'Шешу — Қадам 1', d:'sinθ₂ = (n₁/n₂)·sinθ₁ = (1.0/1.33)·sin45° = 0.752·0.707 = 0.532' },
+        ru:{ t:'Решение — Шаг 1', d:'sinθ₂ = (n₁/n₂)·sinθ₁ = (1.0/1.33)·sin45° = 0.752·0.707 = 0.532' },
+        chalk:['sinθ₂ = (n₁/n₂)·sinθ₁','= 0.752 × 0.707','= 0.532'], speak_kk:'Шешу бірінші қадам. Синус тета екінші тең н бірінші бөлінген н екінші, синус тета бірінші. Санаймыз: 0.752 көбейтсек 0.707 тең 0.532', speak_ru:'Решение шаг первый. Синус тета два равно н один делить на н два умножить на синус тета один. Считаем: 0.752 умножить на 0.707 равно 0.532' },
+      { kk:{ t:'Шешу — Қадам 2', d:'θ₂ = arcsin(0.532) ≈ 32.1°. Детектив тапты! Судағы зат нақты орнынан 32° ауытқып көрінеді. Балық тіпті осы себепті аулануы қиын!' },
+        ru:{ t:'Решение — Шаг 2', d:'θ₂ = arcsin(0.532) ≈ 32.1°. Детектив нашёл! Предмет в воде кажется смещённым на 32°. Рыбу поэтому так сложно поймать!' },
+        chalk:['θ₂ = arcsin(0.532)','θ₂ ≈ 32° 🕵️✓'], speak_kk:'Шешу екінші қадам. Тета екінші тең арксинус 0.532 тең 32 градус. Детектив тапты! Судағы зат 32 градус ауытқып көрінеді. Балық осы себепті аулануы қиын!', speak_ru:'Решение шаг второй. Тета два равно арксинус 0.532 равно 32 градуса. Детектив нашёл! Предмет в воде кажется смещённым на 32 градуса. Рыбу поэтому сложно поймать!' }
+    ]
+  },
+  confused: {
+    kk:{ badge:'✏️ Есеп', title:'Линза есебі — 5 Қадаппен шығарамыз!' },
+    ru:{ badge:'✏️ Задача', title:'Задача с линзой — Решаем за 5 шагов!' },
+    color:'#f87171', emoColor:'#f43f5e',
+    steps:[
+      { kk:{ t:'1-ҚАДАМ: Берілгенді жаз', d:'Жинақтаушы линзаның фокус қашықтығы f=10 см. Зат линзадан d₀=30 см қашықтықта. Кескін қашықтығы dᵢ=? табу керек.' },
+        ru:{ t:'ШАГ 1: Запиши данные', d:'Фокусное расстояние собирающей линзы f=10 см. Предмет на расстоянии d₀=30 см. Найти расстояние до изображения dᵢ=?' },
+        chalk:['БЕРІЛГЕН:','f = 10 см','d₀ = 30 см','dᵢ = ?'], speak_kk:'Бірінші қадам. Берілгенді жаз. Фокус қашықтығы эф тең он сантиметр. Зат линзадан д нол тең отыз сантиметр қашықтықта. Кескін қашықтығы ди и табу керек.', speak_ru:'Шаг первый. Запиши данные. Фокусное расстояние эф равно десять сантиметров. Предмет на расстоянии д ноль тридцать сантиметров. Найти расстояние до изображения ди и.' },
+      { kk:{ t:'2-ҚАДАМ: Формула', d:'1/f = 1/d₀ + 1/dᵢ — жұқа линза формуласы. Бізге dᵢ керек, сондықтан dᵢ-ді бөлек шығарамыз: 1/dᵢ = 1/f − 1/d₀' },
+        ru:{ t:'ШАГ 2: Формула', d:'1/f = 1/d₀ + 1/dᵢ — формула тонкой линзы. Нам нужно dᵢ, поэтому выражаем: 1/dᵢ = 1/f − 1/d₀' },
+        chalk:['1/f = 1/d₀ + 1/dᵢ','→ 1/dᵢ = 1/f − 1/d₀'], speak_kk:'Екінші қадам. Формула. Бір бөлінген эф тең бір бөлінген д нол плюс бір бөлінген ди и. Бізге ди и керек, сондықтан бөлек шығарамыз. Бір бөлінген ди и тең бір бөлінген эф минус бір бөлінген д нол.', speak_ru:'Шаг второй. Формула. Один делить на эф равно один делить на д ноль плюс один делить на ди и. Нам нужно ди и, поэтому выражаем. Один делить на ди и равно один делить на эф минус один делить на д ноль.' },
+      { kk:{ t:'3-ҚАДАМ: Сандарды қой', d:'1/dᵢ = 1/10 − 1/30 = 3/30 − 1/30 = 2/30. Бөлшектерді алу: жалпы бөлімге келтіру керек. 1/10 = 3/30.' },
+        ru:{ t:'ШАГ 3: Подставь числа', d:'1/dᵢ = 1/10 − 1/30 = 3/30 − 1/30 = 2/30. Вычитание дробей: нужно привести к общему знаменателю. 1/10 = 3/30.' },
+        chalk:['1/dᵢ = 1/10 − 1/30','= 3/30 − 1/30','= 2/30'], speak_kk:'Үшінші қадам. Сандарды қоямыз. Бір бөлінген ди и тең бір бөлінген он минус бір бөлінген отыз. Жалпы бөлімге келтіреміз. Үш бөлінген отыз минус бір бөлінген отыз тең екі бөлінген отыз.', speak_ru:'Шаг третий. Подставляем числа. Один делить на ди и равно один делить на десять минус один делить на тридцать. Приводим к общему знаменателю. Три делить на тридцать минус один делить на тридцать равно два делить на тридцать.' },
+      { kk:{ t:'4-ҚАДАМ: dᵢ табу', d:'1/dᵢ = 2/30, демек dᵢ = 30/2 = 15 см. Кескін линзадан 15 см жерде пайда болады!' },
+        ru:{ t:'ШАГ 4: Найти dᵢ', d:'1/dᵢ = 2/30, значит dᵢ = 30/2 = 15 см. Изображение появляется на 15 см от линзы!' },
+        chalk:['dᵢ = 30/2 = 15 см','Кескін = 15 см жерде ✓'], speak_kk:'Төртінші қадам. Бір бөлінген ди и тең екі бөлінген отыз. Демек ди и тең отыз бөлінген екі тең он бес сантиметр. Кескін линзадан он бес сантиметр жерде пайда болады!', speak_ru:'Шаг четвёртый. Один делить на ди и равно два делить на тридцать. Значит ди и равно тридцать делить на два равно пятнадцать сантиметров. Изображение появляется на пятнадцать сантиметров от линзы!' },
+      { kk:{ t:'5-ҚАДАМ: Тексеру', d:'1/10 = 1/30 + 1/15 → 0.1 = 0.033 + 0.067 = 0.1 ✓ Дұрыс! Мақтаулысың — есепті дұрыс шығардың!' },
+        ru:{ t:'ШАГ 5: Проверка', d:'1/10 = 1/30 + 1/15 → 0.1 = 0.033 + 0.067 = 0.1 ✓ Верно! Молодец — задача решена правильно!' },
+        chalk:['ТЕКСЕРУ:','1/10 = 1/30 + 1/15','0.1 = 0.1  ✓  ДҰРЫС!'], speak_kk:'Бесінші қадам. Тексеру. Бір бөлінген он тең бір бөлінген отыз плюс бір бөлінген он бес. 0.1 тең 0.033 плюс 0.067 тең 0.1. Дұрыс! Мақтаулысың!', speak_ru:'Шаг пятый. Проверка. Один делить на десять равно один делить на тридцать плюс один делить на пятнадцать. 0.1 равно 0.033 плюс 0.067 равно 0.1. Верно! Молодец!' }
+    ]
+  }
+},
+
+demo: {
+  fear: {
+    kk:{ badge:'🔬 Демонстрация', title:'Айна тәжірибесі — Жай қадамдармен' },
+    ru:{ badge:'🔬 Демонстрация', title:'Опыт с зеркалом — Простые шаги' },
+    color:'#60a5fa', emoColor:'#3b82f6',
+    steps:[
+      { kk:{ t:'Мақсат', d:'Қорықпа! Бұл тәжірибені үйде жасауға болады. Мақсат: жарықтың шағылуын өз көзіңмен байқау және θ₁ = θ₂ заңын дәлелдеу.' },
+        ru:{ t:'Цель', d:'Не бойся! Этот опыт можно сделать дома. Цель: наблюдать отражение света своими глазами и доказать закон θ₁ = θ₂.' },
+        chalk:['ТӘЖІРИБЕ МАҚСАТЫ:','θ₁ = θ₂ дәлелдеу','Үйде жасалады ✓'], speak_kk:'Мақсат. Қорықпа! Бұл тәжірибені үйде жасауға болады. Мақсатымыз жарықтың шағылуын өз көзіңмен байқау және тета бірінші тең тета екінші заңын дәлелдеу.', speak_ru:'Цель. Не бойся! Этот опыт можно сделать дома. Наша цель наблюдать отражение света своими глазами и доказать закон тета один равно тета два.' },
+      { kk:{ t:'Керекті заттар', d:'1) Тегіс айна. 2) Қол фонарь. 3) Қараңғы бөлме. 4) Ақ қағаз. 5) Транспортир. Бәрі үйде бар!' },
+        ru:{ t:'Необходимые предметы', d:'1) Плоское зеркало. 2) Фонарик. 3) Тёмная комната. 4) Белая бумага. 5) Транспортир. Всё есть дома!' },
+        chalk:['Керекті заттар:','1) Айна  2) Фонарь','3) Қағаз  4) Транспортир'], speak_kk:'Керекті заттар. Бірінші тегіс айна. Екінші қол фонарь. Үшінші қараңғы бөлме. Төртінші ақ қағаз. Бесінші транспортир. Бәрі үйде бар!', speak_ru:'Необходимые предметы. Первое плоское зеркало. Второе фонарик. Третье тёмная комната. Четвёртое белая бумага. Пятое транспортир. Всё есть дома!' },
+      { kk:{ t:'1-2 Қадам', d:'Бөлмені қараңғылат. Айнаны еденге немесе үстелге қой. Қағазды айна алдына жай. Фонарды қосып, айнаға бағытта.' },
+        ru:{ t:'Шаги 1-2', d:'Затемни комнату. Положи зеркало на пол или стол. Положи бумагу перед зеркалом. Включи фонарик и направь на зеркало.' },
+        chalk:['1) Бөлмені қараңғылат','2) Айнаны қой','3) Фонарды бағытта →'], speak_kk:'Бірінші қадам. Бөлмені қараңғылат. Айнаны еденге немесе үстелге қой. Қағазды айна алдына жай. Фонарды қосып айнаға бағытта.', speak_ru:'Шаг первый. Затемни комнату. Положи зеркало на пол или стол. Положи бумагу перед зеркалом. Включи фонарик и направь на зеркало.' },
+      { kk:{ t:'3-4 Қадам: Байқау', d:'Жарық айнадан шағылады! Бақыла: кіру сәулесі мен шығу сәулесінің бұрыштарын транспортирмен өлше. Тең болады!' },
+        ru:{ t:'Шаги 3-4: Наблюдение', d:'Свет отражается от зеркала! Наблюдай: измерь транспортиром углы падающего и отражённого луча. Они равны!' },
+        chalk:['Байқау: θ₁ = ? , θ₂ = ?','Транспортирмен өлше!'], speak_kk:'Үшінші қадам. Байқау. Жарық айнадан шағылады! Кіру сәулесі мен шығу сәулесінің бұрыштарын транспортирмен өлше. Тең болады!', speak_ru:'Шаг третий. Наблюдение. Свет отражается от зеркала! Измерь транспортиром углы падающего и отражённого луча. Они равны!' },
+      { kk:{ t:'Нәтиже — Дәлел!', d:'Өлшеп тексердік: θ₁ = θ₂! Шағылу заңы дәлелденді! Сен ғылыми тәжірибе жасадың. Физик болдың! 🔭 Мақтаулысың!' },
+        ru:{ t:'Результат — Доказательство!', d:'Проверили измерением: θ₁ = θ₂! Закон отражения доказан! Ты провёл научный опыт. Стал физиком! 🔭 Молодец!' },
+        chalk:['θ₁ = θ₂  ДӘЛЕЛДЕНДІ! ✓','Сен физик болдың! 🔭'], speak_kk:'Нәтиже. Өлшеп тексердік. Тета бірінші тең тета екінші! Шағылу заңы дәлелденді! Сен ғылыми тәжірибе жасадың. Физик болдың! Мақтаулысың!', speak_ru:'Результат. Проверили измерением. Тета один равно тета два! Закон отражения доказан! Ты провёл научный опыт. Стал физиком! Молодец!' }
+    ]
+  },
+  bored: {
+    kk:{ badge:'🔬 Демонстрация', title:'Бассейн иллюзиясы — Сиқыр жасаймыз!' },
+    ru:{ badge:'🔬 Демонстрация', title:'Иллюзия бассейна — Создаём магию!' },
+    color:'#34d399', emoColor:'#10b981',
+    steps:[
+      { kk:{ t:'Сиқыр дайындаймыз!', d:'Бүгін достарыңды таң қалдыратын сиқыр үйренесің! Қалам суда сынып кетеді... Бірақ бұл — Снеллиус заңы!' },
+        ru:{ t:'Готовим магию!', d:'Сегодня научишься фокусу, который удивит друзей! Карандаш ломается в воде... Но это — закон Снеллиуса!' },
+        chalk:['СИҚЫР ТӘЖІРИБЕСІ ✨','Қалам + Су = ?!','Снеллиус заңы'], speak_kk:'Сиқыр дайындаймыз! Бүгін достарыңды таң қалдыратын сиқыр үйренесің. Қалам суда сынып кетеді. Бірақ бұл сиқыр емес, бұл Снеллиус заңы!', speak_ru:'Готовим магию! Сегодня научишься фокусу который удивит друзей. Карандаш ломается в воде. Но это не магия, это закон Снеллиуса!' },
+      { kk:{ t:'Керекті заттар', d:'1) Мөлдір стакан. 2) Су. 3) Қалам немесе сызғыш. 4) Телефон камерасы. Оп-оңай!' },
+        ru:{ t:'Необходимые предметы', d:'1) Прозрачный стакан. 2) Вода. 3) Карандаш или линейка. 4) Камера телефона. Очень просто!' },
+        chalk:['Керекті заттар:','Стакан + Су','Қалам + Камера 📱'], speak_kk:'Керекті заттар. Бірінші мөлдір стакан. Екінші су. Үшінші қалам немесе сызғыш. Төртінші телефон камерасы.', speak_ru:'Необходимые предметы. Первое прозрачный стакан. Второе вода. Третье карандаш или линейка. Четвёртое камера телефона.' },
+      { kk:{ t:'Сиқырды орындаймыз!', d:'Стаканды сумен тол. Қаламды тік тіке сал. Бүйірден қара — ВАУ! Қалам сынды! Себебі: жарық судан өткенде сынады.' },
+        ru:{ t:'Выполняем фокус!', d:'Наполни стакан водой. Поставь карандаш вертикально. Смотри сбоку — ВАУ! Карандаш сломан! Причина: свет преломляется в воде.' },
+        chalk:['1) Стаканды сумен тол','2) Қаламды сал','3) Бүйірден қара → ВАУ!'], speak_kk:'Сиқырды орындаймыз! Стаканды сумен тол. Қаламды тік тіке сал. Бүйірден қара. Уау! Қалам сынды! Себебі жарық судан өткенде сынады.', speak_ru:'Выполняем фокус! Наполни стакан водой. Поставь карандаш вертикально. Смотри сбоку. Вау! Карандаш сломан! Причина свет преломляется в воде.' },
+      { kk:{ t:'Сырды ашамыз!', d:'Бұл — оптикалық иллюзия! Жарық судан шыққанда сынады. n_су=1.33 болғандықтан бұрылады. Ол бұрылу сенің көзіңді алдайды!' },
+        ru:{ t:'Раскрываем тайну!', d:'Это — оптическая иллюзия! Свет выходя из воды преломляется. Из-за n_воды=1.33 свет изгибается. Этот изгиб обманывает твой глаз!' },
+        chalk:['Сыр: n_су = 1.33','Жарық судан шыққанда','бұрылады → иллюзия!'], speak_kk:'Сырды ашамыз! Бұл оптикалық иллюзия. Жарық судан шыққанда сынады. Судың сыну көрсеткіші 1.33 болғандықтан жарық бұрылады. Ол бұрылу сенің көзіңді алдайды!', speak_ru:'Раскрываем тайну! Это оптическая иллюзия. Свет выходя из воды преломляется. Из-за показателя преломления воды 1.33 свет изгибается. Этот изгиб обманывает твой глаз!' },
+      { kk:{ t:'Достарыңа көрсет!', d:'Достарыңа осы сиқырды жаса. Олар таң қалғанда: «Бұл — Снеллиус заңы!» де. Сен енді физик-сиқыршысың! 🎩' },
+        ru:{ t:'Покажи друзьям!', d:'Покажи этот фокус друзьям. Когда они удивятся, скажи: «Это — закон Снеллиуса!». Ты теперь физик-иллюзионист! 🎩' },
+        chalk:['Снеллиус заңы = Сиқыр!','Физик-сиқыршы 🎩✓'], speak_kk:'Достарыңа осы сиқырды жаса. Олар таң қалғанда Снеллиус заңы де. Сен енді физик сиқыршысың!', speak_ru:'Покажи этот фокус друзьям. Когда они удивятся скажи это закон Снеллиуса. Ты теперь физик иллюзионист!' }
+    ]
+  },
+  confused: {
+    kk:{ badge:'🔬 Демонстрация', title:'Линза тәжірибесі — 6 Қадаппен!' },
+    ru:{ badge:'🔬 Демонстрация', title:'Опыт с линзой — 6 шагов!' },
+    color:'#f87171', emoColor:'#f43f5e',
+    steps:[
+      { kk:{ t:'1-ҚАДАМ: Мақсат', d:'Линзаның фокус қашықтығын өлшеу. Анықтайтынымыз: жарық сәулелері линзадан өткенде қайда жиналады? Ол нүкте — ФОКУС.' },
+        ru:{ t:'ШАГ 1: Цель', d:'Измерить фокусное расстояние линзы. Определим: где собираются лучи после линзы? Эта точка — ФОКУС.' },
+        chalk:['ШАГ 1 — МАҚСАТ:','Линза фокусын тап','f = ? өлшеу'], speak_kk:'Бірінші қадам мақсат. Линзаның фокус қашықтығын өлшеу. Анықтайтынымыз жарық сәулелері линзадан өткенде қайда жиналады? Ол нүкте фокус деп аталады.', speak_ru:'Шаг первый цель. Измерить фокусное расстояние линзы. Определим где собираются лучи после линзы. Эта точка называется фокусом.' },
+      { kk:{ t:'2-ҚАДАМ: Заттар', d:'Керекті заттар: 1) Жинақтаушы линза (лупа). 2) Ақ қағаз. 3) Сызғыш. 4) Жарық көзі (шам немесе күн). Бар ма? Жақсы!' },
+        ru:{ t:'ШАГ 2: Предметы', d:'Нужные предметы: 1) Собирающая линза (лупа). 2) Белая бумага. 3) Линейка. 4) Источник света (лампа или солнце). Есть? Хорошо!' },
+        chalk:['ШАГ 2 — ЗАТТАР:','Лупа + Қағаз','Сызғыш + Жарық'], speak_kk:'Екінші қадам заттар. Бірінші жинақтаушы линза яғни лупа. Екінші ақ қағаз. Үшінші сызғыш. Төртінші жарық көзі шам немесе күн. Бар ма? Жақсы!', speak_ru:'Шаг второй предметы. Первое собирающая линза то есть лупа. Второе белая бумага. Третье линейка. Четвёртое источник света лампа или солнце. Есть? Хорошо!' },
+      { kk:{ t:'3-ҚАДАМ: Орнату', d:'Линзаны жарық алдына ұста. Ақ қағазды линзаның артына орналастыр. Линза мен қағаз арасы — шамамен 20 см.' },
+        ru:{ t:'ШАГ 3: Установка', d:'Держи линзу перед источником света. Расположи белую бумагу позади линзы. Расстояние между линзой и бумагой — примерно 20 см.' },
+        chalk:['ШАГ 3:','Жарық → Линза → Қағаз','~20 см арасы'], speak_kk:'Үшінші қадам орнату. Линзаны жарық алдына ұста. Ақ қағазды линзаның артына орналастыр. Линза мен қағаз арасы шамамен жиырма сантиметр.', speak_ru:'Шаг третий установка. Держи линзу перед источником света. Расположи белую бумагу позади линзы. Расстояние между линзой и бумагой примерно двадцать сантиметров.' },
+      { kk:{ t:'4-ҚАДАМ: Жылжыту', d:'Қағазды алдыға-артқа жылжыт. Бақыла: қашан жарық нүктесі ең кіші болады. Ең кіші, ең жарық нүкте — ФОКУС!' },
+        ru:{ t:'ШАГ 4: Передвижение', d:'Двигай бумагу вперёд-назад. Наблюдай: когда точка света становится наименьшей. Самая маленькая, самая яркая точка — ФОКУС!' },
+        chalk:['ШАГ 4:','Қағазды жылжыт ↔','Ең кіші нүкте = ФОКУС!'], speak_kk:'Төртінші қадам жылжыту. Қағазды алдыға артқа жылжыт. Бақыла. Қашан жарық нүктесі ең кіші болады? Ең кіші ең жарық нүкте фокус!', speak_ru:'Шаг четвёртый передвижение. Двигай бумагу вперёд назад. Наблюдай. Когда точка света становится наименьшей? Самая маленькая самая яркая точка это фокус!' },
+      { kk:{ t:'5-ҚАДАМ: Өлшеу', d:'Фокус табылды! Линзадан фокусқа дейінгі қашықтықты сызғышпен өлше. Ол — фокус қашықтығы f. Жаз: f = ___ см.' },
+        ru:{ t:'ШАГ 5: Измерение', d:'Фокус найден! Измерь линейкой расстояние от линзы до фокуса. Это — фокусное расстояние f. Запиши: f = ___ см.' },
+        chalk:['ШАГ 5:','f = линзадан фокусқа','Сызғышпен өлше → f=___'], speak_kk:'Бесінші қадам өлшеу. Фокус табылды! Линзадан фокусқа дейінгі қашықтықты сызғышпен өлше. Ол фокус қашықтығы. Жаз: эф тең бос орын сантиметр.', speak_ru:'Шаг пятый измерение. Фокус найден! Измерь линейкой расстояние от линзы до фокуса. Это фокусное расстояние. Запиши: эф равно пробел сантиметров.' },
+      { kk:{ t:'6-ҚАДАМ: Нәтиже', d:'Өлшедің! Ол — линзаның фокус қашықтығы! Дәл осы f мәнін формулада қолдана аласың. Ғалым болдың! 🧪 Мақтаулысың!' },
+        ru:{ t:'ШАГ 6: Результат', d:'Измерил! Это — фокусное расстояние линзы! Именно это значение f можно использовать в формуле. Стал учёным! 🧪 Молодец!' },
+        chalk:['ШАГ 6 — НӘТИЖЕ:','f өлшенді! ✓','Ғалым болдың! 🧪'], speak_kk:'Алтыншы қадам нәтиже. Өлшедің! Ол линзаның фокус қашықтығы! Дәл осы эф мәнін формулада қолдана аласың. Ғалым болдың! Мақтаулысың!', speak_ru:'Шаг шестой результат. Измерил! Это фокусное расстояние линзы! Именно это значение эф можно использовать в формуле. Стал учёным! Молодец!' }
+    ]
+  }
+}
+
+};
+
+// ══════════════════════════════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════════════════════════════
+let lang='kk', section=null, emotion=null;
+let playing=false, voiceOn=true;
+let stepIdx=0, stepTimer=null, totalSteps=0;
+let chalkCtx=null, chalkW=0, chalkH=0;
+let chalkAnimId=null;
+let utterance=null;
+
+const EMO_LABELS={
+  kk:{ fear:'😨 Қорқыныш', bored:'😴 Жалығу', confused:'😵 Шатасу' },
+  ru:{ fear:'😨 Страх', bored:'😴 Скука', confused:'😵 Шатасу' }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.getElementById('backBtn').classList.toggle('show', id!=='sHome');
+}
+
+function goBack(){
+  stopAll();
+  if(section && emotion){ emotion=null; show('sEmotion'); }
+  else{ section=null; emotion=null; show('sHome'); }
+}
+
+function pickSection(s){
+  section=s; emotion=null;
+  show('sEmotion');
+  updateEmoScreen();
+}
+
+function pickEmotion(e){
+  emotion=e;
+  show('sVideo');
+  buildLesson();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LANGUAGE
+// ══════════════════════════════════════════════════════════════════
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lp').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase().includes(l==='kk'?'қаз':'рус')));
+  applyLangStrings();
+  if(section && emotion) buildLesson();
+  else if(section) updateEmoScreen();
+}
+
+const STRINGS={
+  kk:{
+    ht1:'Жарық пен', ht2:'Оптика Әлемі', hsub:'Сенің эмоцияңа бейімделген физика платформасы',
+    'ncA-t':'ЛЕКЦИЯ','ncA-d':'Оптика теориясын үйрен',
+    'ncB-t':'ЕСЕПТЕР','ncB-d':'Есептерді бірге шығар',
+    'ncC-t':'ДЕМОНСТРАЦИЯ','ncC-d':'Зертхана тәжірибесі',
+    emoH:'Қазір өзіңді қалай сезінесің?', emoP:'Эмоцияңды таңда — сабақ саған бейімделеді',
+    emoBubble:'Қазір өзіңді қалай сезінесің? 😊',
+    'ecF-t':'Қорқыныш / Сенімсіздік','ecF-q':'"Физиканы түсінбеймін деп қорқамын"',
+    'ecB-t':'Жалығу / Қызығушылық жоқ','ecB-q':'"Бұл сабақ маған қажет емес"',
+    'ecC-t':'Шатасу / Түсінбеу','ecC-q':'"Тақырыпты мүлдем түсінбедім"',
+    stepsH:'📋 Сабақ жоспары', backBtn:'← Артқа'
+  },
+  ru:{
+    ht1:'Свет и', ht2:'Мир Оптики', hsub:'Образовательная платформа, адаптированная к твоим эмоциям',
+    'ncA-t':'ЛЕКЦИЯ','ncA-d':'Изучи теорию оптики',
+    'ncB-t':'ЗАДАЧИ','ncB-d':'Решаем задачи вместе',
+    'ncC-t':'ДЕМОНСТРАЦИЯ','ncC-d':'Лабораторный эксперимент',
+    emoH:'Как ты себя чувствуешь сейчас?', emoP:'Выбери эмоцию — урок адаптируется к тебе',
+    emoBubble:'Как ты себя чувствуешь сейчас? 😊',
+    'ecF-t':'Страх / Неуверенность','ecF-q':'"Боюсь, что не пойму физику"',
+    'ecB-t':'Скука / Нет интереса','ecB-q':'"Мне не нужен этот урок"',
+    'ecC-t':'Растерянность / Непонимание','ecC-q':'"Совсем не понял тему"',
+    stepsH:'📋 План урока', backBtn:'← Назад'
+  }
+};
+
+function applyLangStrings(){
+  const s=STRINGS[lang];
+  Object.keys(s).forEach(k=>{
+    const el=document.getElementById(k);
+    if(el) el.textContent=s[k];
+  });
+}
+
+function updateEmoScreen(){
+  applyLangStrings();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BUILD LESSON
+// ══════════════════════════════════════════════════════════════════
+function buildLesson(){
+  stopAll();
+  const d=DATA[section][emotion];
+  const L=lang;
+  stepIdx=0;
+  totalSteps=d.steps.length;
+
+  // Badge & title
+  document.getElementById('lBadge').textContent=d[L].badge;
+  document.getElementById('lBadge').style.background=d.color+'33';
+  document.getElementById('lBadge').style.color=d.color;
+  document.getElementById('emoBadge').textContent=EMO_LABELS[L][emotion];
+  document.getElementById('emoBadge').style.background=d.emoColor+'33';
+  document.getElementById('emoBadge').style.color=d.emoColor;
+  document.getElementById('lTitle').textContent=d[L].title;
+
+  // Steps panel
+  document.getElementById('stepsH').textContent=STRINGS[L].stepsH;
+  document.getElementById('stepsBody').innerHTML=d.steps.map((s,i)=>`
+    <div class="step-item" id="si${i}" style="--step-c:${d.color}" onclick="jumpStep(${i})">
+      <div class="snum">${i+1}</div>
+      <div class="stext">
+        <div class="st">${s[L].t}</div>
+        <div class="sd">${s[L].d}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Init chalk canvas
+  initChalk();
+  // Show first step
+  renderStep(0);
+  document.getElementById('playBtn').textContent='▶️';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CHALK CANVAS
+// ══════════════════════════════════════════════════════════════════
+function initChalk(){
+  const board=document.querySelector('.blackboard');
+  const canvas=document.getElementById('chalkCanvas');
+  chalkW=board.clientWidth;
+  chalkH=board.clientHeight;
+  canvas.width=chalkW;
+  canvas.height=chalkH;
+  chalkCtx=canvas.getContext('2d');
+  chalkCtx.clearRect(0,0,chalkW,chalkH);
+}
+
+function writeChalk(lines, color='#f4f0e0'){
+  if(!chalkCtx) return;
+  chalkCtx.clearRect(0,0,chalkW,chalkH);
+  const fontSize=Math.min(chalkW/12, 22);
+  chalkCtx.font=`bold ${fontSize}px 'Nunito', sans-serif`;
+  chalkCtx.textAlign='center';
+
+  const totalH=lines.length*(fontSize*1.5);
+  let y=(chalkH-totalH)/2+fontSize;
+
+  lines.forEach((line,i)=>{
+    // chalk texture: draw multiple slightly offset
+    chalkCtx.globalAlpha=0.15;
+    chalkCtx.fillStyle=color;
+    for(let j=0;j<3;j++){
+      const ox=(Math.random()-.5)*1.5;
+      const oy=(Math.random()-.5)*1.5;
+      chalkCtx.fillText(line, chalkW/2+ox, y+oy);
+    }
+    chalkCtx.globalAlpha=1;
+    chalkCtx.fillStyle=color;
+    chalkCtx.fillText(line, chalkW/2, y);
+    y+=fontSize*1.6;
+  });
+}
+
+let chalkWriteAnimFrame=null;
+function animateChalkWrite(lines, color='#f4f0e0'){
+  if(!chalkCtx){initChalk();}
+  chalkCtx.clearRect(0,0,chalkW,chalkH);
+  const fontSize=Math.min(chalkW/12,22);
+  chalkCtx.font=`bold ${fontSize}px 'Nunito', sans-serif`;
+  chalkCtx.textAlign='center';
+  const totalH=lines.length*(fontSize*1.6);
+  let startY=(chalkH-totalH)/2+fontSize;
+
+  let lineI=0, charI=0;
+  const allChars=lines.map(l=>({text:l,y:startY+lineI*fontSize*1.6}));
+  // flatten
+  let flat=[];
+  lines.forEach((l,li)=>{
+    const y=startY+li*fontSize*1.6;
+    for(let ci=0;ci<l.length;ci++) flat.push({line:li,char:ci,y,allChars:lines.slice(0,li+1).map((ll,lli)=>({t:lli<li?ll:ll.slice(0,ci+1),y:startY+lli*fontSize*1.6}))});
+  });
+  let fi=0;
+  function frame(){
+    if(fi>=flat.length) return;
+    chalkCtx.clearRect(0,0,chalkW,chalkH);
+    const cur=flat[fi];
+    cur.allChars.forEach(row=>{
+      chalkCtx.globalAlpha=0.2;
+      chalkCtx.fillStyle=color;
+      for(let k=0;k<2;k++) chalkCtx.fillText(row.t,chalkW/2+(Math.random()-.5)*1.2,row.y+(Math.random()-.5)*1.2);
+      chalkCtx.globalAlpha=1;
+      chalkCtx.fillStyle=color;
+      chalkCtx.fillText(row.t,chalkW/2,row.y);
+    });
+    fi++;
+    chalkWriteAnimFrame=setTimeout(frame, 40);
+  }
+  frame();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STEP RENDERING
+// ══════════════════════════════════════════════════════════════════
+function renderStep(idx){
+  const d=DATA[section][emotion];
+  const s=d.steps[idx];
+  const L=lang;
+
+  // Highlight step
+  document.querySelectorAll('.step-item').forEach((el,i)=>el.classList.toggle('active',i===idx));
+
+  // Progress
+  const pct=totalSteps>1 ? (idx/(totalSteps-1))*100 : 100;
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('timerDisp').textContent=`${idx+1} / ${totalSteps}`;
+
+  // Chalk board
+  if(chalkWriteAnimFrame) clearTimeout(chalkWriteAnimFrame);
+  animateChalkWrite(s.chalk || [s[L].t], '#f4f0e0');
+
+  // Subtitle
+  document.getElementById('subKK').textContent=s[lang==='kk'?'kk':'ru']?.d || s.kk.d;
+  document.getElementById('subRU').textContent=lang==='kk'?s.ru?.d:'';
+
+  // Bubble
+  const bubble=document.getElementById('clsBubble');
+  bubble.textContent=s[L].t;
+  bubble.classList.add('show');
+
+  // Light rays for demo
+  const showRays=section==='demo';
+  ['ray1','ray2','ray3'].forEach(id=>{
+    document.getElementById(id).classList.toggle('show',showRays);
+  });
+
+  // Teacher arm animation — point toward board
+  const armR=document.getElementById('tArmR');
+  if(armR){
+    armR.style.transform='rotate(-30deg)';
+    armR.style.transformOrigin='10px 4px';
+    setTimeout(()=>{ if(armR) armR.style.transform='rotate(0deg)'; },600);
+  }
+
+  // Speak
+  if(voiceOn) speak(s['speak_'+L] || s[L].d, L);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TEXT TO SPEECH
+// ══════════════════════════════════════════════════════════════════
+function speak(text, l){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=l==='kk'?'kk-KZ':'ru-RU';
+  u.rate=0.92;
+  u.pitch=1.05;
+  u.volume=1;
+
+  // Try to pick a good voice
+  const voices=window.speechSynthesis.getVoices();
+  let v=voices.find(v=>v.lang===u.lang) ||
+        voices.find(v=>v.lang.startsWith(l==='kk'?'kk':'ru')) ||
+        voices.find(v=>v.lang.startsWith('ru')) ||
+        null;
+  if(v) u.voice=v;
+
+  // Animate mouth while speaking
+  u.onstart=()=>{ startMouthAnim(); };
+  u.onend=()=>{ stopMouthAnim(); };
+
+  utterance=u;
+  window.speechSynthesis.speak(u);
+}
+
+let mouthInterval=null;
+function startMouthAnim(){
+  const m=document.getElementById('tMouth');
+  if(!m) return;
+  let open=false;
+  mouthInterval=setInterval(()=>{
+    open=!open;
+    m.setAttribute('d', open
+      ? 'M48,64 Q55,74 62,64'
+      : 'M48,66 Q55,72 62,66');
+  },180);
+}
+function stopMouthAnim(){
+  clearInterval(mouthInterval);
+  const m=document.getElementById('tMouth');
+  if(m) m.setAttribute('d','M48,66 Q55,72 62,66');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PLAYBACK
+// ══════════════════════════════════════════════════════════════════
+function togglePlay(){
+  playing ? pausePlay() : startPlay();
+}
+
+function startPlay(){
+  playing=true;
+  document.getElementById('playBtn').textContent='⏸️';
+  renderStep(stepIdx);
+  scheduleNext();
+}
+
+function scheduleNext(){
+  if(!playing) return;
+  const d=DATA[section][emotion];
+  const stepMs=6000; // 6 seconds per step
+  stepTimer=setTimeout(()=>{
+    if(!playing) return;
+    if(stepIdx<totalSteps-1){
+      stepIdx++;
+      renderStep(stepIdx);
+      scheduleNext();
+    } else {
+      // finished
+      playing=false;
+      document.getElementById('playBtn').textContent='🔄';
+    }
+  }, stepMs);
+}
+
+function pausePlay(){
+  playing=false;
+  clearTimeout(stepTimer);
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  stopMouthAnim();
+  document.getElementById('playBtn').textContent='▶️';
+}
+
+function restart(){
+  stopAll();
+  stepIdx=0;
+  buildLesson();
+}
+
+function jumpStep(i){
+  stopAll();
+  stepIdx=i;
+  renderStep(i);
+}
+
+function stopAll(){
+  playing=false;
+  clearTimeout(stepTimer);
+  clearTimeout(chalkWriteAnimFrame);
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  stopMouthAnim();
+  document.getElementById('playBtn').textContent='▶️';
+}
+
+function seekClick(e){
+  const bar=e.currentTarget;
+  const pct=(e.clientX-bar.getBoundingClientRect().left)/bar.clientWidth;
+  const idx=Math.min(Math.round(pct*(totalSteps-1)), totalSteps-1);
+  stopAll();
+  stepIdx=Math.max(0,idx);
+  renderStep(stepIdx);
+}
+
+function toggleVoice(){
+  voiceOn=!voiceOn;
+  document.getElementById('voiceBtn').textContent=voiceOn?'🔊':'🔇';
+  if(!voiceOn && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+// Load voices async
+if(window.speechSynthesis){
+  speechSynthesis.onvoiceschanged=()=>{ speechSynthesis.getVoices(); };
+}
+applyLangStrings();
+</script>
+</body>
+</html>
